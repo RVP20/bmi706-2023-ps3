@@ -22,7 +22,6 @@ def load_data():
 
     df = df.groupby(["Country", "Year", "Cancer", "Age", "Sex"]).sum().reset_index()
     df["Rate"] = df["Deaths"] / df["Pop"] * 100_000
-    df = ...  # remove this line
     return df
 
 
