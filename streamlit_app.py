@@ -1,7 +1,6 @@
 import altair as alt
 import pandas as pd
 import streamlit as st
-
 ### P1.2 ###
 
 @st.cache
@@ -21,7 +20,7 @@ def load_data():
     df.dropna(inplace=True)
 
     df = df.groupby(["Country", "Year", "Cancer", "Age", "Sex"]).sum().reset_index()
-    df["Rate"] = df["Deaths"] / df["Pop"] * 100_000
+    df["Rate"] = df["Deaths"] / df["Pop"] * 100000
     return df
 
 
@@ -35,14 +34,16 @@ st.write("## Age-specific cancer mortality rates")
 
 ### P2.1 ###
 # replace with st.slider
-year = 2012
+year = st.slider("Year",min_value = df['Year'].min(), max_value = df['Year'].max(),
+            value = 2012)
 subset = df[df["Year"] == year]
 ### P2.1 ###
 
 
 ### P2.2 ###
 # replace with st.radio
-sex = "M"
+sex = st.radio('Sex',['M','F'])
+#sex = "M"
 subset = subset[subset["Sex"] == sex]
 ### P2.2 ###
 
@@ -59,14 +60,16 @@ countries = [
     "Thailand",
     "Turkey",
 ]
-subset = subset[subset["Country"].isin(countries)]
+countries_list = st.multiselect('Countries',list(df['Country'].unique()), default = countries)
+subset = subset[subset["Country"].isin(countries_list)]
 ### P2.3 ###
 
 
 ### P2.4 ###
 # replace with st.selectbox
 cancer = "Malignant neoplasm of stomach"
-subset = subset[subset["Cancer"] == cancer]
+cancer_dropdown = st.selectbox('Cancer',list(df['Cancer'].unique()))
+subset = subset[subset["Cancer"] == cancer_dropdown]
 ### P2.4 ###
 
 
@@ -82,10 +85,10 @@ ages = [
     "Age >64",
 ]
 
-chart = alt.Chart(subset).mark_bar().encode(
+chart = alt.Chart(subset).mark_rect().encode(
     x=alt.X("Age", sort=ages),
-    y=alt.Y("Rate", title="Mortality rate per 100k"),
-    color="Country",
+    y=alt.Y("Country", title="Country"),
+    color=alt.Color("Rate", scale=alt.Scale(type='log', domain=(0.001, 1), clamp=True)),
     tooltip=["Rate"],
 ).properties(
     title=f"{cancer} mortality rates for {'males' if sex == 'M' else 'females'} in {year}",
